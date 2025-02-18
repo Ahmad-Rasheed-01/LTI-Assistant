@@ -44,9 +44,14 @@ install_docker() {
 
 # Function to add user to Docker group
 add_user_to_docker_group() {
-    echo -e "${YELLOW}Adding user to Docker group...${NC}"
-    sudo usermod -aG docker $USER
-    echo -e "${GREEN}User added to Docker group successfully.${NC}"
+    read -p "Do you want to add your user to the Docker group? (y/N): " response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Adding user to Docker group...${NC}"
+        sudo usermod -aG docker $USER
+        echo -e "${GREEN}User added to Docker group successfully.${NC}"
+    else
+        echo -e "${RED}User was not added to Docker group.${NC}"
+    fi
 }
 
 # Function to check Docker installation
@@ -65,6 +70,13 @@ restart_wsl() {
     echo -e "${YELLOW}Restarting WSL...${NC}"
     wsl --shutdown
     echo -e "${GREEN}WSL restarted. Please open Ubuntu again.${NC}"
+}
+
+# Function to install Rust
+install_rust() {
+    echo -e "${YELLOW}Installing Rust...${NC}"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    echo -e "${GREEN}Rust installed successfully.${NC}"
 }
 
 # Function to start Docker service
@@ -93,10 +105,11 @@ display_menu() {
         echo "6) Add User to Docker Group"
         echo "7) Check Docker Installation"
         echo "8) Restart WSL"
-        echo "9) Start Docker Service"
-        echo "10) Stop Docker Service"
-        echo "11) Install All (Recommended)"
-        echo "12) Exit"
+        echo "9) Install Rust"
+        echo "10) Start Docker Service"
+        echo "11) Stop Docker Service"
+        echo "12) Install All (Recommended)"
+        echo "13) Exit"
         read -p "Select an option: " choice
 
         case $choice in
@@ -108,10 +121,11 @@ display_menu() {
             6) add_user_to_docker_group ;;
             7) test_docker ;;
             8) restart_wsl ;;
-            9) start_docker ;;
-            10) stop_docker ;;
-            11) update_system && install_dependencies && add_gpg_key && add_docker_repo && install_docker && add_user_to_docker_group && restart_wsl && test_docker ;;
-            12) echo -e "${GREEN}Exiting...${NC}"; exit 0 ;;
+            9) install_rust ;;
+            10) start_docker ;;
+            11) stop_docker ;;
+            12) update_system && install_dependencies && add_gpg_key && add_docker_repo && install_docker && add_user_to_docker_group && restart_wsl && test_docker && install_rust ;;
+            13) echo -e "${GREEN}Exiting...${NC}"; exit 0 ;;
             *) echo -e "${RED}Invalid option. Please try again.${NC}" ;;
         esac
     done
